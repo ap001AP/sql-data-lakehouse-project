@@ -78,11 +78,6 @@ For each of the 6 Bronze tables, a dedicated Silver notebook is created (`silver
 - Validate numeric values
 - Standardize business key IDs for correct joins
 
-**Notebook Structure**
-- **Section 1**: Read from Bronze table into a DataFrame
-- **Section 2**: Apply transformations step-by-step (one fix at a time, verified with `df.display()`)
-- **Section 3**: Write the clean DataFrame to a Silver table with a friendly name
-
 **Finalization**
 - Run the full notebook end-to-end
 - Added comments and documentation
