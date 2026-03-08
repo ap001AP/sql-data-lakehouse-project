@@ -1,0 +1,26 @@
+resources:
+  jobs:
+    lakehouse_v2_pipeline:
+      name: lakehouse_v2_pipeline
+
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      tasks:
+        - task_key: bronze_ingestion
+          notebook_task:
+            notebook_path: /Users/approjects8473@gmail.com/data-lakehouse-project_v1/script/bronze/bronze_layer
+          
+        - task_key: silver_transformations
+          depends_on:
+            - task_key: bronze_ingestion
+          notebook_task:
+            notebook_path: /Users/approjects8473@gmail.com/data-lakehouse-project_v1/script/silver/silver_orchestration
+
+        - task_key: gold_transformations
+          depends_on:
+            - task_key: silver_transformations
+          notebook_task:
+            notebook_path: /Users/approjects8473@gmail.com/data-lakehouse-project_v1/script/gold/gold_orchestration
