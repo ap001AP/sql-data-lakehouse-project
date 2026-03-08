@@ -153,3 +153,4 @@ Enable SQL-based analytics on Gold layer tables to deliver detailed insights int
 
 This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and share this project with proper attribution.
 # CI/CD enabled
+# CI/CD enabled
