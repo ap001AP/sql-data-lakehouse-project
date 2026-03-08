@@ -23,6 +23,7 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Deploy to Dev
+        working-directory: lakehouse_v2
         run: databricks bundle deploy --target dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
