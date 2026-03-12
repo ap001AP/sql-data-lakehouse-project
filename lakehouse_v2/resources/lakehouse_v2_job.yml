@@ -9,7 +9,13 @@ resources:
           unit: DAYS
 
       tasks:
+        - task_key: jdbc_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/bronze_jdbc_ingestion
+
         - task_key: bronze_ingestion
+          depends_on: 
+            - task_key: jdbc_ingestion
           notebook_task:
             notebook_path: /Users/approjects8473@gmail.com/data-lakehouse-project_v1/script/bronze/bronze_layer
           
