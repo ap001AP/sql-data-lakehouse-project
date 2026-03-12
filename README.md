@@ -1,5 +1,9 @@
 # Data Lakehouse — Version 1
 
+> **Note**: View [Data Lakehouse v2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2?tab=readme-ov-file)
+
+---
+
 ## Data Architecture
 
 The data architecture for this project follows the **Medallion Architecture** with **Bronze**, **Silver**, and **Gold** layers, built on top of **Databricks** and **Unity Catalog**:
