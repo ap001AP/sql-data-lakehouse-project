@@ -6,7 +6,7 @@
 
 ## Overview
 
-Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](#) by evolving the architecture from a manually operated pipeline into a **production-grade, automated data platform**.
+Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](https://github.com/ap001AP/sql-data-lakehouse-project/tree/main?tab=readme-ov-file) by evolving the architecture from a manually operated pipeline into a **production-grade, automated data platform**.
 
 ---
 
@@ -17,7 +17,7 @@ Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](#) 
 - **Infrastructure-as-Code**: Migrated pipeline orchestration to Databricks Asset Bundles, defining Bronze, Silver, and Gold jobs as versioned YAML configuration across `dev` and `prod` environments.
 - **CI/CD Pipeline**: Implemented GitHub Actions workflow that automatically validates and deploys the full Databricks bundle to the dev environment on every push, eliminating all manual deployment steps.
 
-### 🔄 In Progress
+### In Progress
 - **REST APIs**: Exposing data layers via APIs for downstream consumption.
 - **Kafka Integration**: Adding real-time streaming ingestion using Apache Kafka.
 - **CI/CD Expansion**: Extending the pipeline to cover production deployments.
