@@ -1,4 +1,4 @@
-# Data Lakehouse — Version 2 (In Progress)
+# Data Lakehouse — Version 2 (In Progress 🚧)
 
 > **Note**: This project is actively under development. This README will be updated as new features are completed.
 
@@ -13,12 +13,12 @@ Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](htt
 ## What's New in V2
 
 ### Completed
-- **Live Database Ingestion**: Replaced manual CSV ingestion with a live PostgreSQL operational database connection using Python database connectors, enabling automated direct ingestion into Bronze Delta Lake tables.
+- **Live Database Ingestion**: Replaced manual CSV ingestion with a live PostgreSQL operational database (hosted on Render) using a Python database connector that automatically ingests 6 ERP and CRM tables (115,000+ rows) directly into Bronze Delta tables.
+- **REST API Ingestion**: Built a REST API ingestion framework that pulls live data from the REST Countries API, parses nested JSON responses into flat Delta tables, and enriches the customer dimension with geographic metadata including region, population, currency, and language data.
 - **Infrastructure-as-Code**: Migrated pipeline orchestration to Databricks Asset Bundles, defining Bronze, Silver, and Gold jobs as versioned YAML configuration across `dev` and `prod` environments.
-- **CI/CD Pipeline**: Implemented GitHub Actions workflow that automatically validates and deploys the full Databricks bundle to the dev environment on every push, eliminating all manual deployment steps.
+- **CI/CD Pipeline**: Implemented a GitHub Actions workflow that automatically validates and deploys the full Databricks bundle to the dev environment on every push, eliminating all manual deployment steps.
 
 ### In Progress
-- **REST APIs**: Exposing data layers via APIs for downstream consumption.
 - **Kafka Integration**: Adding real-time streaming ingestion using Apache Kafka.
 - **CI/CD Expansion**: Extending the pipeline to cover production deployments.
 
@@ -34,6 +34,7 @@ Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](htt
 | **PostgreSQL** | Operational source database |
 | **Python** | Database connectors and ingestion scripts |
 | **PySpark / Spark SQL** | Data transformations |
+| **REST API** | Live external data ingestion and JSON parsing |
 | **Databricks Asset Bundles** | Infrastructure-as-Code for job definitions |
 | **GitHub Actions** | CI/CD pipeline automation |
 | **Apache Kafka** | Real-time streaming *(coming soon)* |
