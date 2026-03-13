@@ -9,7 +9,13 @@ resources:
           unit: DAYS
 
       tasks:
+        - task_key: api_ingestion
+          notebook_task: 
+            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/bronze_api_ingestion
+
         - task_key: jdbc_ingestion
+          depends_on:
+            - task_key: api_ingestion
           notebook_task:
             notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/bronze_jdbc_ingestion
 
