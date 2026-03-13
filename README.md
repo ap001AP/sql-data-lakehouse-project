@@ -1,4 +1,4 @@
-# Data Lakehouse — Version 2 (In Progress 🚧)
+# Data Lakehouse — Version 2 (In Progress)
 
 > **Note**: This project is actively under development. This README will be updated as new features are completed.
 
