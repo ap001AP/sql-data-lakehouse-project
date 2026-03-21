@@ -11,13 +11,13 @@ resources:
       tasks:
         - task_key: api_ingestion
           notebook_task: 
-            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/bronze_api_ingestion
+            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/sql-data-lakehouse-project/notebooks/bronze_api_ingestion
 
         - task_key: jdbc_ingestion
           depends_on:
             - task_key: api_ingestion
           notebook_task:
-            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/bronze_jdbc_ingestion
+            notebook_path: /Workspace/Users/approjects8473@gmail.com/data-lakehouse-project-v2/sql-data-lakehouse-project/notebooks/bronze_jdbc_ingestion
 
         - task_key: bronze_ingestion
           depends_on: 
