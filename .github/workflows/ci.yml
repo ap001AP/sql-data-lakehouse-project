@@ -7,7 +7,24 @@ on:
     branches: [lakehouse_v2]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Run unit tests
+        working-directory: lakehouse_v2
+        run: uv run pytest tests/unit/ -v
+
   deploy-dev:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,4 +44,4 @@ jobs:
         run: databricks bundle deploy --target dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }} 
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
