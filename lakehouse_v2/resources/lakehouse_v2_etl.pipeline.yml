@@ -7,7 +7,6 @@ resources:
       catalog: ${var.catalog}
       schema: ${var.schema}
       serverless: true
-      root_path: "../src/lakehouse_v2_etl"
 
       libraries:
         - glob:
