@@ -1,9 +1,26 @@
+
+# Databricks bundle state (local only)
 .databricks/
+
 build/
+
+# Build artifacts
 dist/
+
+# Python cache
 __pycache__/
+__pycache__/
+*.pyc
+.pytest_cache/
+
 *.egg-info
+
+# Virtual environment
 .venv/
+
+# VS Code
+.vscode/
+
 scratch/**
 !scratch/README.md
 **/explorations/**
