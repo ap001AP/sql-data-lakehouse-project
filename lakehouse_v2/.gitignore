@@ -21,6 +21,8 @@ __pycache__/
 # VS Code
 .vscode/
 
+fixtures/
+
 scratch/**
 !scratch/README.md
 **/explorations/**
