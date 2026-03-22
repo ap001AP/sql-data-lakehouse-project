@@ -7,6 +7,7 @@ from lakehouse_v2.silver_transformations import (
     filter_null_customer_id    
 )
 
+
 @pytest.fixture(scope="session")
 def spark():
     return (
