@@ -7,29 +7,38 @@ Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](htt
 
 ## What's New in V2
 
-### Completed
 - **Live Database Ingestion**: Replaced manual CSV ingestion with a live PostgreSQL operational database (hosted on Render) using a Python database connector that automatically ingests 6 ERP and CRM tables (115,000+ rows) directly into Bronze Delta tables.
 - **REST API Ingestion**: Built a REST API ingestion framework that pulls live data from the REST Countries API, parses nested JSON responses into flat Delta tables, and enriches the customer dimension with geographic metadata including region, population, currency, and language data.
 - **Kafka Streaming**: Implemented near real-time data ingestion using Apache Kafka (Aiven) and Spark Structured Streaming — sales events are published to a Kafka topic and continuously consumed into Bronze Delta tables with fault-tolerant checkpointing.
 - **Infrastructure-as-Code**: Migrated pipeline orchestration to Databricks Asset Bundles, defining Bronze, Silver, and Gold jobs as versioned YAML configuration across `dev` and `prod` environments.
-- **CI/CD Pipeline**: Implemented a GitHub Actions workflow that automatically validates and deploys the full Databricks bundle to the dev environment on every push, eliminating all manual deployment steps.
-
-### In Progress
-- **Unit Tests**: Adding pytest unit tests for Silver transformation logic.
-- **CI/CD Expansion**: Extending the pipeline to cover production deployments.
+- **CI/CD Pipeline**: Implemented a GitHub Actions workflow with two sequential stages — unit tests must pass before deployment is triggered, ensuring code quality is enforced on every push.
+- **Unit Tests**: Built a pytest unit test suite with 15 tests covering Silver layer transformation logic including gender normalization, marital status encoding, date parsing, and null handling.
 
 ---
 
 ## Architecture
 ```
 Source Systems
-CSV Files · PostgreSQL · REST APIs · Kafka
+CSV Files · PostgreSQL (Render) · REST Countries API · Apache Kafka (Aiven)
         ↓
 Bronze Layer — Raw ingestion into Delta tables
         ↓
 Silver Layer — PySpark transformations, data quality, standardization
         ↓
 Gold Layer — Star schema (fact_sales, dim_customers, dim_products)
+```
+
+---
+
+## CI/CD Pipeline
+
+Every push to `lakehouse_v2` branch triggers:
+```
+Push to GitHub
+      ↓
+Run 15 unit tests (pytest)
+      ↓ (only if all tests pass)
+Deploy bundle to Databricks dev environment
 ```
 
 ---
@@ -43,9 +52,8 @@ Gold Layer — Star schema (fact_sales, dim_customers, dim_products)
 | **PostgreSQL** | Operational source database (Render) |
 | **Apache Kafka** | Real-time streaming via Aiven managed Kafka |
 | **Spark Structured Streaming** | Continuous Kafka to Delta ingestion |
-| **Python** | Database connectors and ingestion scripts |
 | **PySpark / Spark SQL** | Data transformations |
-| **REST API** | Live external data ingestion and JSON parsing |
+| **pytest** | Unit testing for transformation logic |
 | **Databricks Asset Bundles** | Infrastructure-as-Code for job definitions |
 | **GitHub Actions** | CI/CD pipeline automation |
 
