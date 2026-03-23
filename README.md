@@ -1,6 +1,6 @@
 # Data Lakehouse — Version 1
 
-> **Note**: View [Data Lakehouse v2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2?tab=readme-ov-file) in progress.
+> **Note**: View [Data Lakehouse v2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2?tab=readme-ov-file)
 
 ---
 
