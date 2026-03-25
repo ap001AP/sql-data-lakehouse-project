@@ -36,15 +36,28 @@ jobs:
       - name: Install dbt
         run: pip install dbt-databricks
 
+      - name: Create dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          dbt_lakehouse:
+            target: dev
+            outputs:
+              dev:
+                type: databricks
+                host: ${{ secrets.DATABRICKS_HOST }}
+                http_path: ${{ secrets.DATABRICKS_HTTP_PATH }}
+                token: ${{ secrets.DATABRICKS_TOKEN }}
+                catalog: workspace
+                schema: gold
+                threads: 1
+          EOF
+
       - name: Run dbt models and tests
         working-directory: dbt_lakehouse
         run: |
           dbt run
-          dbt test
-        env:
-          DBT_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DBT_DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          DBT_DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}          
+          dbt test        
 
   deploy-dev:
     needs: dbt
