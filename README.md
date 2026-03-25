@@ -1,7 +1,7 @@
 # Data Lakehouse — Version 3
 
 ## Overview
-Version 3 builds on top of [Data Lakehouse V2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2) by adding a **dbt transformation layer** with automated data quality tests and data lineage documentation. The ML and observability layers are currently in progress.
+Version 3 builds on top of [Data Lakehouse V2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2) by adding a **dbt transformation layer**, **automated data quality checks**, and an expanded **CI/CD pipeline** that enforces code quality and data quality on every push.
 
 ---
 
@@ -12,11 +12,12 @@ Version 3 builds on top of [Data Lakehouse V2](https://github.com/ap001AP/sql-da
 - **Duplicate Customer Deduplication**: Discovered and resolved 5 duplicate customer IDs in the Silver layer using a `ROW_NUMBER()` window function to keep the most recent record per customer.
 - **Null Sales Amount Fix**: Identified 8 rows with null `sales_amount` and imputed values using `price * quantity` directly in the staging model.
 - **Data Lineage Graph**: Auto-generated dbt documentation with a visual lineage graph showing the full data flow from Silver sources through staging views to Gold tables.
+- **Great Expectations DQ**: Implemented automated Bronze layer validation checks on 18,494 customer records — catching 4 null customer IDs and 11 duplicate records before they reach Silver transformations.
+- **CI/CD Expansion**: Extended GitHub Actions pipeline to three sequential stages — unit tests → dbt run + dbt test → Databricks deploy. All stages must pass before deployment.
 
 ### In Progress
 - **MLflow + Feature Store**: Training sales forecasting and customer segmentation models on Gold data with experiment tracking and model registry.
 - **Model Serving**: Deploying trained models as REST API endpoints via Databricks Model Serving.
-- **Great Expectations**: Cross-layer data observability and alerting.
 
 ---
 
@@ -26,7 +27,7 @@ Source Systems
 CSV Files · PostgreSQL (Render) · REST Countries API · Apache Kafka (Aiven)
         ↓
 Bronze Layer — Raw ingestion into Delta tables
-        ↓
+        ↓ Great Expectations DQ checks
 Silver Layer — PySpark transformations, data quality, standardization
         ↓
 dbt Staging Views — stg_customers, stg_products, stg_sales
@@ -66,8 +67,10 @@ Every push to `lakehouse_v3` branch triggers:
 ```
 Push to GitHub
       ↓
-Run unit tests (pytest)
-      ↓ (only if all tests pass)
+Run pytest unit tests (17 tests)
+      ↓ (only if all pass)
+Run dbt models + 17 schema tests
+      ↓ (only if all pass)
 Deploy bundle to Databricks dev environment
 ```
 
@@ -80,6 +83,7 @@ Deploy bundle to Databricks dev environment
 | **Delta Lake** | Storage format for all Lakehouse layers |
 | **Unity Catalog** | Data governance and schema management |
 | **dbt Core** | SQL transformation models with testing and lineage |
+| **Great Expectations** | Automated Bronze layer data quality validation |
 | **PostgreSQL** | Operational source database (Render) |
 | **Apache Kafka** | Real-time streaming via Aiven managed Kafka |
 | **Spark Structured Streaming** | Continuous Kafka to Delta ingestion |
