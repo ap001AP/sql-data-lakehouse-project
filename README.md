@@ -1,6 +1,10 @@
 # Data Lakehouse — Version 1
 
-> **Note**: View [Data Lakehouse v2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2?tab=readme-ov-file) COMPLETED!
+> **Note**: This is Version 1 of an ongoing Data Lakehouse project built on Databricks.
+>
+> **Version 2** Evolved the platform into a production-grade automated pipeline with live PostgreSQL ingestion, REST API ingestion, Apache Kafka streaming, Databricks Asset Bundles (IaC), CI/CD via GitHub Actions, and pytest unit tests. [View V2 →](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2)
+>
+> **Version 3** In Progress — Adding dbt Core transformation models with 17 automated data quality tests, Great Expectations Bronze layer validation, data lineage documentation, and an AI/ML layer with MLflow experiment tracking, Feature Store, and Model Serving REST endpoints. [View V3 →](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v3)
 
 ---
 
