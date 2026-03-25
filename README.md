@@ -40,11 +40,8 @@ ML Layer (in progress) — Feature Store → MLflow → Model Serving REST API
 ---
 
 ## dbt Data Lineage
-```
-stg_customers → dim_customers ↘
-stg_products  → dim_products  → fact_sales
-stg_sales                     ↗
-```
+
+![Flow_Diagram](docs/ Lineage Graph .png)
 
 ---
 
