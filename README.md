@@ -41,7 +41,7 @@ ML Layer (in progress) — Feature Store → MLflow → Model Serving REST API
 
 ## dbt Data Lineage
 
-![Flow_Diagram](docs/ Lineage Graph .png)
+![dbt Lineage Graph](../docs/Lineage_Graph.png)
 
 ---
 
