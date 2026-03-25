@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension table"
+    columns:
+      - name: customer_key
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
+
+  - name: dim_products
+    description: "Product dimension table"
+    columns:
+      - name: product_key
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_sales
+    description: "Sales fact table"
+    columns:
+      - name: order_number
+        tests:
+          - not_null
+      - name: sales_amount
+        tests:
+          - not_null

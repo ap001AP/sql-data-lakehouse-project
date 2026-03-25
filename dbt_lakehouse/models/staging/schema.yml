@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Cleaned CRM customer data joined with location — latest record per customer"
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_products
+    description: "Cleaned CRM product data joined with category"
+    columns:
+      - name: product_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales
+    description: "Cleaned CRM sales transactions"
+    columns:
+      - name: order_number
+        tests:
+          - not_null
+      - name: sales_amount
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - not_null
+      - name: price
+        tests:
+          - not_null
