@@ -2,9 +2,9 @@ name: Lakehouse CI/CD
 
 on:
   push:
-    branches: [lakehouse_v2]
+    branches: [lakehouse_v2, lakehouse_v3]
   pull_request:
-    branches: [lakehouse_v2]
+    branches: [lakehouse_v2, lakehouse_v3]
 
 jobs:
   test:
@@ -23,8 +23,31 @@ jobs:
         working-directory: lakehouse_v2
         run: uv run pytest tests/unit/ -v
 
-  deploy-dev:
+  dbt:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-databricks
+
+      - name: Run dbt models and tests
+        working-directory: dbt_lakehouse
+        run: |
+          dbt run
+          dbt test
+        env:
+          DBT_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DBT_DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DBT_DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}          
+
+  deploy-dev:
+    needs: dbt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
