@@ -1,18 +1,22 @@
-# Data Lakehouse — Version 2
+# Data Lakehouse — Version 3
 
 ## Overview
-Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](https://github.com/ap001AP/sql-data-lakehouse-project/tree/main?tab=readme-ov-file) by evolving the architecture from a manually operated pipeline into a **production-grade, automated data platform**.
+Version 3 builds on top of [Data Lakehouse V2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2) by adding a **dbt transformation layer** with automated data quality tests and data lineage documentation. The ML and observability layers are currently in progress.
 
 ---
 
-## What's New in V2
+## What's New in V3
 
-- **Live Database Ingestion**: Replaced manual CSV ingestion with a live PostgreSQL operational database (hosted on Render) using a Python database connector that automatically ingests 6 ERP and CRM tables (115,000+ rows) directly into Bronze Delta tables.
-- **REST API Ingestion**: Built a REST API ingestion framework that pulls live data from the REST Countries API, parses nested JSON responses into flat Delta tables, and enriches the customer dimension with geographic metadata including region, population, currency, and language data.
-- **Kafka Streaming**: Implemented near real-time data ingestion using Apache Kafka (Aiven) and Spark Structured Streaming — sales events are published to a Kafka topic and continuously consumed into Bronze Delta tables with fault-tolerant checkpointing.
-- **Infrastructure-as-Code**: Migrated pipeline orchestration to Databricks Asset Bundles, defining Bronze, Silver, and Gold jobs as versioned YAML configuration across `dev` and `prod` environments.
-- **CI/CD Pipeline**: Implemented a GitHub Actions workflow with two sequential stages — unit tests must pass before deployment is triggered, ensuring code quality is enforced on every push.
-- **Unit Tests**: Built a pytest unit test suite with 15 tests covering Silver layer transformation logic including gender normalization, marital status encoding, date parsing, and null handling.
+- **dbt Core Integration**: Replaced Gold layer SQL notebooks with version-controlled dbt models — staging views and Gold dimension/fact tables are now defined as `.sql` files with full lineage tracking and auto-generated documentation.
+- **Automated Data Quality Tests**: Built 17 dbt schema tests covering uniqueness, null checks, and referential integrity across all staging and Gold models.
+- **Duplicate Customer Deduplication**: Discovered and resolved 5 duplicate customer IDs in the Silver layer using a `ROW_NUMBER()` window function to keep the most recent record per customer.
+- **Null Sales Amount Fix**: Identified 8 rows with null `sales_amount` and imputed values using `price * quantity` directly in the staging model.
+- **Data Lineage Graph**: Auto-generated dbt documentation with a visual lineage graph showing the full data flow from Silver sources through staging views to Gold tables.
+
+### In Progress
+- **MLflow + Feature Store**: Training sales forecasting and customer segmentation models on Gold data with experiment tracking and model registry.
+- **Model Serving**: Deploying trained models as REST API endpoints via Databricks Model Serving.
+- **Great Expectations**: Cross-layer data observability and alerting.
 
 ---
 
@@ -25,18 +29,44 @@ Bronze Layer — Raw ingestion into Delta tables
         ↓
 Silver Layer — PySpark transformations, data quality, standardization
         ↓
-Gold Layer — Star schema (fact_sales, dim_customers, dim_products)
+dbt Staging Views — stg_customers, stg_products, stg_sales
+        ↓
+Gold Layer — dim_customers, dim_products, fact_sales (built by dbt)
+        ↓
+ML Layer (in progress) — Feature Store → MLflow → Model Serving REST API
 ```
+
+---
+
+## dbt Data Lineage
+```
+stg_customers → dim_customers ↘
+stg_products  → dim_products  → fact_sales
+stg_sales                     ↗
+```
+
+---
+
+## dbt Tests — 17/17 Passing
+
+| Model | Tests |
+|---|---|
+| `stg_customers` | unique + not_null on customer_id |
+| `stg_products` | unique + not_null on product_id |
+| `stg_sales` | not_null on order_number, sales_amount, quantity, price |
+| `dim_customers` | unique + not_null on customer_key, not_null on customer_id, first_name, last_name |
+| `dim_products` | unique + not_null on product_key |
+| `fact_sales` | not_null on order_number, sales_amount |
 
 ---
 
 ## CI/CD Pipeline
 
-Every push to `lakehouse_v2` branch triggers:
+Every push to `lakehouse_v3` branch triggers:
 ```
 Push to GitHub
       ↓
-Run 15 unit tests (pytest)
+Run unit tests (pytest)
       ↓ (only if all tests pass)
 Deploy bundle to Databricks dev environment
 ```
@@ -49,13 +79,15 @@ Deploy bundle to Databricks dev environment
 | **Databricks** | Unified analytics and pipeline platform |
 | **Delta Lake** | Storage format for all Lakehouse layers |
 | **Unity Catalog** | Data governance and schema management |
+| **dbt Core** | SQL transformation models with testing and lineage |
 | **PostgreSQL** | Operational source database (Render) |
 | **Apache Kafka** | Real-time streaming via Aiven managed Kafka |
 | **Spark Structured Streaming** | Continuous Kafka to Delta ingestion |
-| **PySpark / Spark SQL** | Data transformations |
+| **PySpark / Spark SQL** | Silver layer transformations |
 | **pytest** | Unit testing for transformation logic |
 | **Databricks Asset Bundles** | Infrastructure-as-Code for job definitions |
 | **GitHub Actions** | CI/CD pipeline automation |
+| **MLflow** | ML experiment tracking and model registry *(in progress)* |
 
 ---
 
