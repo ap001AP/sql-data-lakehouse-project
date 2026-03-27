@@ -41,7 +41,7 @@ ML Layer — Feature Engineering → MLflow → Model Registry → REST Endpoint
 
 ## dbt Data Lineage
 
-![dbt Lineage Graph](docs/lineage_graph.png)
+![dbt Lineage Graph](docs/Lineage_Graph.png)
 
 ---
 
