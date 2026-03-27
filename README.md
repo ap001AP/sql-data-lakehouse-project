@@ -3,6 +3,8 @@
 ## Overview
 Version 2 of the Data Lakehouse project builds on top of [Data Lakehouse v1](https://github.com/ap001AP/sql-data-lakehouse-project/tree/main?tab=readme-ov-file) by evolving the architecture from a manually operated pipeline into a **production-grade, automated data platform**.
 
+Version 3: [View V3](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v3)
+
 ---
 
 ## What's New in V2
