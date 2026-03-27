@@ -27,3 +27,8 @@ scratch/**
 !scratch/README.md
 **/explorations/**
 **/!explorations/README.md
+
+# dbt generated files
+dbt_lakehouse/target/
+dbt_lakehouse/logs/
+dbt_lakehouse/.user.yml
