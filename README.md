@@ -1,162 +1,312 @@
 # Data Lakehouse — Version 1
 
-> **Note**: This is Version 1 of an ongoing Data Lakehouse project built on Databricks.
->
-> **Version 2** Evolved the platform into a production-grade automated pipeline with live PostgreSQL ingestion, REST API ingestion, Apache Kafka streaming, Databricks Asset Bundles (IaC), CI/CD via GitHub Actions, and pytest unit tests. [View V2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2)
->
-> **Version 3** Added dbt Core transformation models with 17 automated data quality tests, Great Expectations Bronze layer validation, data lineage documentation, and a full AI/ML layer with MLflow experiment tracking, sales forecasting and customer segmentation models, Model Registry, and a live Model Serving REST endpoint. [View V3](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v3)
+A modern **data lakehouse built with Databricks, PySpark, Delta Lake, and Unity Catalog** to transform raw ERP and CRM sales data into clean, business-ready datasets for analytics and reporting.
+
+> **Project Status:** Version 1
+> This repository is part of an evolving Data Lakehouse project. Later versions extend the architecture with streaming, API ingestion, CI/CD, automated testing, dbt, data quality frameworks, and machine learning.
+
+## Project Evolution
+
+* **Version 1:** Batch-based lakehouse using CSV sources, Medallion Architecture, PySpark, Spark SQL, Delta Lake, Unity Catalog, and Databricks Jobs.
+* **Version 2:** Added PostgreSQL and REST API ingestion, Apache Kafka streaming, Databricks Asset Bundles, GitHub Actions CI/CD, and pytest unit testing.
+  **[View V2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2)**
+* **Version 3:** Added dbt transformation models, automated data quality testing, Great Expectations Bronze validation, data lineage, and an ML layer using MLflow for sales forecasting and customer segmentation.
+  **[View V3](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v3)**
 
 ---
 
-## Data Architecture
+## Architecture
 
-The data architecture for this project follows the **Medallion Architecture** with **Bronze**, **Silver**, and **Gold** layers, built on top of **Databricks** and **Unity Catalog**:
+The project follows the **Medallion Architecture**, separating data processing into three layers:
 
 ![Data Architecture](docs/data_lakehouse_arch.png)
 
-1. **Bronze Layer**: Stores raw data as-is from source CSV files. Data is ingested directly into Delta tables in the Bronze schema without any transformations.
-2. **Silver Layer**: Applies data cleansing, standardization, and normalization on top of Bronze tables. Each source table is processed individually to resolve quality issues and prepare data for modeling.
-3. **Gold Layer**: Houses business-ready data modeled into a **star schema** — with fact and dimension tables — designed for reporting and analytics.
+```text
+                         Source Systems
+                              │
+                   ┌──────────┴──────────┐
+                   │                     │
+                  ERP                   CRM
+                   │                     │
+                   └──────────┬──────────┘
+                              ▼
+                       ┌─────────────┐
+                       │   BRONZE    │
+                       │  Raw Delta  │
+                       │    Tables   │
+                       └──────┬──────┘
+                              │
+                              ▼
+                       ┌─────────────┐
+                       │   SILVER    │
+                       │   Cleaned   │
+                       │ & Standard. │
+                       │    Data     │
+                       └──────┬──────┘
+                              │
+                              ▼
+                       ┌─────────────┐
+                       │    GOLD     │
+                       │ Star Schema │
+                       │ Fact + Dims │
+                       └──────┬──────┘
+                              │
+                              ▼
+                       Analytics / BI
+```
+
+### Bronze — Raw Data
+
+The Bronze layer stores source data in its original structure.
+
+* Ingests 6 CSV files from ERP and CRM systems
+* Stores data as **Delta tables**
+* Preserves the raw source structure
+* Uses `erp_` and `crm_` prefixes to identify source systems
+* Uses overwrite-based batch ingestion for the latest dataset
+
+**Purpose:** Provide a reliable landing layer while preserving the original source data for downstream processing.
+
+### Silver — Cleaned & Standardized Data
+
+The Silver layer transforms raw Bronze data into clean and standardized datasets.
+
+Key transformations include:
+
+* Duplicate detection and removal
+* Null and invalid value handling
+* String cleanup and standardization
+* Date validation and formatting
+* Numeric data validation
+* Business identifier standardization
+* Preparation of datasets for downstream joins
+
+**Purpose:** Create consistent and trustworthy data before business modeling.
+
+### Gold — Business Data Model
+
+The Gold layer moves away from the source-system structure and organizes data around business concepts.
+
+The final model follows a **star schema** containing:
+
+* `fact_sales`
+* `dim_customers`
+* `dim_products`
+
+Gold tables are created by joining relevant Silver datasets and validating the resulting records.
+
+**Purpose:** Provide business-ready datasets optimized for analytical queries and reporting.
 
 ---
 
-## Project Overview
+## Data Pipeline
 
-This project involves:
+The end-to-end pipeline is orchestrated using **Databricks Jobs**.
 
-1. **Data Architecture**: Designing a Modern Data Lakehouse using Medallion Architecture (Bronze, Silver, Gold) on Databricks with Unity Catalog.
-2. **ETL Pipelines**: Extracting, transforming, and loading data from source CSV files through all three layers using PySpark and Spark SQL.
-3. **Data Modeling**: Developing fact and dimension tables in the Gold layer optimized for analytical queries.
-4. **Pipeline Orchestration**: Automating the end-to-end flow using Databricks Jobs with orchestration notebooks for each layer.
-5. **Analytics & Reporting**: Enabling SQL-based reporting and dashboards on top of Gold tables.
+```text
+                         Bronze Ingestion
+                                │
+                                ▼
+                       Silver Orchestration
+                                │
+                  ┌─────────────┼─────────────┐
+                  │             │             │
+                  ▼             ▼             ▼
+             Silver 1      Silver 2       Silver ...
+                  │             │             │
+                  └─────────────┼─────────────┘
+                                ▼
+                        Gold Orchestration
+                                │
+                  ┌─────────────┼─────────────┐
+                  │             │             │
+                  ▼             ▼             ▼
+            dim_customers  dim_products   fact_sales
+                  │             │             │
+                  └─────────────┼─────────────┘
+                                ▼
+                       Analytics & Reporting
+```
+
+### Orchestration
+
+Two orchestration notebooks coordinate the downstream transformations:
+
+* `silver_orchestration.py`
+* `gold_orchestration.py`
+
+These notebooks use `dbutils.notebook.run` to execute individual transformation notebooks.
+
+The Databricks Job consists of three main stages:
+
+1. **Bronze:** Ingest source CSV files into Delta tables
+2. **Silver:** Clean and standardize the source data
+3. **Gold:** Build the business-oriented star schema
+
+The pipeline can be scheduled and monitored through Databricks Jobs.
+
+---
+
+## Data Modeling
+
+The original source data is organized around ERP and CRM systems. Rather than exposing the source structure directly to analysts, the Gold layer reorganizes the data around business entities.
+
+### Star Schema
+
+```text
+                 ┌───────────────────┐
+                 │   dim_customers   │
+                 │───────────────────│
+                 │ customer_id       │
+                 │ customer attributes
+                 └─────────┬─────────┘
+                           │
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  fact_sales  │
+                    │──────────────│
+                    │ sale_id      │
+                    │ customer_id  │
+                    │ product_id   │
+                    │ quantity     │
+                    │ sales_amount │
+                    └──────┬───────┘
+                           │
+                           │
+                           ▼
+                 ┌───────────────────┐
+                 │   dim_products    │
+                 │───────────────────│
+                 │ product_id        │
+                 │ product attributes
+                 └───────────────────┘
+```
+
+The model separates:
+
+* **Facts:** Measurable business events such as sales
+* **Dimensions:** Descriptive entities such as customers and products
+
+This allows analysts to query sales data without needing to understand the underlying ERP and CRM source structures.
+
+---
+
+## Data Quality
+
+Data quality checks are primarily performed during the Silver transformation stage.
+
+| Check                  | Purpose                                                   |
+| ---------------------- | --------------------------------------------------------- |
+| Duplicate detection    | Prevent duplicate records from entering downstream tables |
+| Null validation        | Identify missing required values                          |
+| String standardization | Remove inconsistent formatting and whitespace             |
+| Date validation        | Ensure dates are correctly typed and formatted            |
+| Numeric validation     | Identify invalid numeric values                           |
+| ID standardization     | Ensure business keys can be reliably joined               |
+
+The goal is to prevent poor-quality source data from propagating into the Gold layer.
 
 ---
 
 ## Project Requirements
 
-### Building the Lakehouse
+The lakehouse was designed to:
 
-#### Objective
-Develop a modern data lakehouse on Databricks to consolidate sales data across ERP and CRM systems, enabling scalable analytical reporting and informed decision-making.
+* Consolidate ERP and CRM sales data
+* Process data using a scalable Spark-based architecture
+* Separate raw, cleaned, and business-ready datasets
+* Apply data quality transformations before analytical modeling
+* Build a unified star schema
+* Automate the complete Bronze → Silver → Gold workflow
+* Support SQL-based analytics and reporting
 
-#### Specifications
-- **Data Sources**: Ingest data from two source systems (ERP and CRM), provided as 6 CSV files.
-- **Storage**: Use Databricks Unity Catalog with three schemas — `bronze`, `silver`, and `gold`.
-- **Data Quality**: Cleanse and resolve all data quality issues in the Silver layer prior to modeling.
-- **Integration**: Combine all sources into a unified star schema model designed for analytical queries.
-- **Scope**: Focus on the latest dataset only; historization of data is not required.
-- **Documentation**: Provide clear documentation of notebooks, transformations, and the data model to support both business stakeholders and analytics teams.
-
----
-
-## Build Phases
-
-### Phase 1 — Environment Setup
-
-- Connect GitHub to Databricks via Git Folder (`Workspace → Create → Git Folder`)
-- Create Lakehouse schemas in Unity Catalog: `bronze`, `silver`, `gold`
-- Create a volume inside the Bronze schema: `system_sources`
-- Upload all 6 source CSV files into the Bronze volume
+The project focuses on the **latest available dataset** rather than historical tracking or slowly changing dimensions.
 
 ---
 
-### Phase 2 — Bronze Layer
+## Technology Stack
 
-**Goal**: Ingest all raw CSV files into Delta tables without any transformations.
-
-- For each of the 6 CSV files:
-  - Read the CSV into a DataFrame
-  - Write it to a Bronze table using **overwrite mode**
-  - Use a source-system prefix in the table name (e.g., `erp_` or `crm_`) to identify the origin
-  - Query the table to verify it loaded correctly
-- Run the full Bronze notebook end-to-end
-
----
-
-### Phase 3 — Silver Layer
-
-**Goal**: Clean and transform Bronze data and load the results into the Silver layer.
-
-For each of the 6 Bronze tables, a dedicated Silver notebook is created (`silver_<source>_<table_name>`):
-
-**Data Quality Analysis**
-- Find duplicates
-- Validate string values: extra spaces, abbreviations to normalize
-- Validate date values: check data type, format, and handle nulls
-- Validate numeric values
-- Standardize business key IDs for correct joins
-
-**Finalization**
-- Run the full notebook end-to-end
-- Added comments and documentation
+| Technology          | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| **Databricks**      | Lakehouse platform and Spark environment        |
+| **PySpark**         | Distributed data processing and transformations |
+| **Spark SQL**       | SQL-based data transformations and analysis     |
+| **Delta Lake**      | Transactional storage layer                     |
+| **Unity Catalog**   | Data organization and governance                |
+| **Databricks Jobs** | Pipeline orchestration and scheduling           |
+| **GitHub**          | Source control and project versioning           |
+| **draw.io**         | Data architecture and schema design             |
 
 ---
 
-### Phase 4 — Gold Layer
+## Repository Structure
 
-**Goal**: Break away from source-system structure and introduce a business-oriented star schema.
-
-**Data Modeling**
-- Map each table to a business object (customers, products, sales)
-- Design the target data model using draw.io — example: `fact_sales`, `dim_customers`, `dim_products`
-
-**Building Gold Tables**
-For each Gold table:
-- Join all relevant Silver tables
-- Ensure no duplicates after joins
-- Validate query output
-- Write the result to a Gold Delta table using clear naming prefixes:
-  - `dim_` for dimension tables
-  - `fact_` for fact tables
-
----
-
-### Phase 5 — Pipeline Orchestration
-
-**Goal**: Automate the end-to-end Lakehouse flow from Bronze to Silver to Gold.
-
-**Orchestration Notebooks**
-- `silver_orchestration.py`: Triggers all 6 Silver notebooks in sequence using `dbutils.notebook.run`
-- `gold_orchestration.py`: Triggers all Gold notebooks in sequence using `dbutils.notebook.run`
-
-**Databricks Job Setup**
-- Created a new Job (e.g., `loading_bike_data_lakehouse`) with three tasks:
-  1. **Bronze Task**: Run the Bronze notebook
-  2. **Silver Task**: Run the Silver orchestration notebook
-  3. **Gold Task**: Run the Gold orchestration notebook
-- Run the job and validate that all tasks complete successfully
-
-**Scheduling**
-- Add a daily trigger to the job
-- Monitor runs and check logs 
+```text
+sql-data-lakehouse-project/
+│
+├── datasets/
+│   └── source CSV files
+│
+├── docs/
+│   └── data_lakehouse_arch.png
+│
+├── notebooks/
+│   ├── bronze/
+│   ├── silver/
+│   ├── gold/
+│   └── orchestration/
+│
+├── README.md
+└── LICENSE
+```
 
 ---
 
-### BI: Analytics & Reporting
+## Key Engineering Concepts
 
-#### Objective
-Enable SQL-based analytics on Gold layer tables to deliver detailed insights into:
+This project demonstrates experience with:
 
-- **Customer Behavior**
-- **Product Performance**
-- **Sales Trends**
+* Modern data lakehouse architecture
+* Medallion Architecture
+* Batch ETL pipelines
+* Distributed data processing with PySpark
+* Delta Lake
+* Data cleansing and validation
+* Dimensional data modeling
+* Star schemas
+* Pipeline orchestration
+* SQL analytics
+* Cloud data platforms
+* Version-controlled data engineering workflows
 
 ---
 
-## Tech Stack
+## Future Development
 
-| Tool | Purpose |
-|---|---|
-| **Databricks** | Unified analytics platform |
-| **Apache Spark / PySpark** | Data processing and transformations |
-| **Delta Lake** | Storage format for all Lakehouse layers |
-| **Unity Catalog** | Data governance and schema management |
-| **Databricks Jobs** | Pipeline orchestration and scheduling |
-| **GitHub** | Version control |
-| **draw.io** | Data model design |
+Version 1 established the core batch-based lakehouse architecture. The project was subsequently extended in Versions 2 and 3 with:
+
+* PostgreSQL ingestion
+* REST API ingestion
+* Apache Kafka streaming
+* Databricks Asset Bundles
+* GitHub Actions CI/CD
+* pytest unit testing
+* dbt transformation models
+* Automated data quality testing
+* Great Expectations validation
+* Data lineage documentation
+* MLflow experiment tracking
+* Sales forecasting
+* Customer segmentation
+* Model Registry
+* Model Serving REST endpoint
+
+**[View Version 2](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v2)**
+**[View Version 3](https://github.com/ap001AP/sql-data-lakehouse-project/tree/lakehouse_v3)**
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and share this project with proper attribution.
+This project is licensed under the [MIT License](LICENSE).
