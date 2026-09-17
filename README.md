@@ -21,40 +21,6 @@ The project follows the **Medallion Architecture**, separating data processing i
 
 ![Data Architecture](docs/data_lakehouse_arch.png)
 
-```text
-                         Source Systems
-                              │
-                   ┌──────────┴──────────┐
-                   │                     │
-                  ERP                   CRM
-                   │                     │
-                   └──────────┬──────────┘
-                              ▼
-                       ┌─────────────┐
-                       │   BRONZE    │
-                       │  Raw Delta  │
-                       │    Tables   │
-                       └──────┬──────┘
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │   SILVER    │
-                       │   Cleaned   │
-                       │ & Standard. │
-                       │    Data     │
-                       └──────┬──────┘
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │    GOLD     │
-                       │ Star Schema │
-                       │ Fact + Dims │
-                       └──────┬──────┘
-                              │
-                              ▼
-                       Analytics / BI
-```
-
 ### Bronze — Raw Data
 
 The Bronze layer stores source data in its original structure.
